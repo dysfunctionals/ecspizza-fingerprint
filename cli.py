@@ -82,19 +82,13 @@ def find_nearest(file_names, prints_file=PRINTS_FILE, centres_file=CENTRES_FILE)
     print("finding nearest...")
     saved_prints = load_pkl(prints_file)
     # print("prints", saved_prints)
-    cached_comparisons = {}
     for file_name in file_names:
         samenesses = []
         candidate = saved_prints[file_name]
-        del saved_prints[file_name]
         for compare_file_name, comparison in saved_prints.items():
-            assert compare_file_name != file_name
-            if (compare_file_name, file_name) in cached_comparisons:
-                sameness = cached_comparisons[(file_name, compare_file_name)]
-            else:
-                sameness = similarity(candidate, comparison)
-                cached_comparisons[(file_name, compare_file_name)] = sameness
-                cached_comparisons[(compare_file_name, file_name)] = sameness
+            if file_name == compare_file_name:
+                continue
+            sameness = similarity(candidate, comparison)
             samenesses.append((sameness, compare_file_name))
         samenesses.sort()
 

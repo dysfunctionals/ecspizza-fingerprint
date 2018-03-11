@@ -3,7 +3,7 @@ from collections import deque
 import cv2 as cv
 import numpy as np
 
-angles_to_try = 500
+angles_to_try = 300
 offsets_per_angle = 10
 SAMPLES_PER_LINE = 100
 
@@ -56,7 +56,7 @@ def similarity(candidate, template):
     for offset in range(len(candidate)):
         difference = 0
         for c, t in zip(candidate_deque, template):
-            difference += abs(c - t)
+            difference += int(abs(c - t))
         smallest_difference = min(smallest_difference, difference)
         candidate_deque.rotate(1)
     return smallest_difference
