@@ -62,29 +62,40 @@ def similarity(candidate, template):
     return smallest_difference
 
 
+def running_average(values, running_avg=50):
+    for i, val in enumerate(values):
+        avg = np.mean([values[(i+c) % len(values)] for c in range(running_avg)])
+        yield val-avg
+
+
 def calc_fingerprint(img, circle, show_edges=False, show_fingers=False):
     x, y, rad = circle
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    edges = cv.Canny(gray, 60, 120, apertureSize=3)
+    gray = cv.blur(gray, ksize=(10, 10))
+    gray = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_MEAN_C,
+                          cv.THRESH_BINARY, 111, 2)
 
     if show_edges:
-        cv.imshow("lines", edges)
-        cv.waitKey(0)
+        edges = cv.Canny(gray, 60, 120, apertureSize=3)
+        cv.imshow(f"lines {show_edges}", gray)
+        # cv.waitKey(0)
 
     angles = []
     for angle in np.linspace(0, 2 * np.pi, 1000):
         prob = get_intensity(gray, angle, circle)
         angles.append((angle, prob))
 
+    angles = [(ang, n_val) for ((ang, val), n_val) in
+              zip(angles, running_average([v for _, v in angles]))]
     overlay = img.copy()
     for ang, val in angles:
-        scaled = (val / 255)
+        scaled = (val / 155) + 0.2
         draw_radius(overlay, (x, y, rad * scaled), ang)
 
     img = cv.addWeighted(overlay, 0.5, img, 0.5, 0)
 
     if show_fingers:
-        cv.imshow("fingers", img)
-        cv.waitKey(0)
+        cv.imshow(f"fingers {show_fingers}", img)
+        # cv.waitKey(0)
 
-    return normalise([v for _, v in angles])
+    return [v for _, v in angles]
