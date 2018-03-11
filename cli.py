@@ -5,7 +5,6 @@ from circle_detection import detect_pizzas
 from file_handling import get_pizza_centre, load_pkl, write_pkl
 from fingerprinting import calc_fingerprint, similarity
 
-CENTRES_FILE = 'centres.pkl'
 PRINTS_FILE = 'prints.pkl'
 
 
@@ -23,11 +22,10 @@ def display_circles(circles, image):
     cv.waitKey(0)
 
 
-def guess_pizza_circle(img, file_name, centres_file):
-    centre = get_pizza_centre(file_name, centres_file)
+def guess_pizza_circle(img):
     radius = max(img.shape) / 3
     return \
-        centre[0], centre[1], radius
+        int(img.shape[1]/2), int(img.shape[0]/2), radius
 
 
 def collect_data(
@@ -36,7 +34,6 @@ def collect_data(
          show_edges=False,
          show_fingers=False,
          show_circles=False,
-         centres_file=CENTRES_FILE,
          prints_file=PRINTS_FILE,
     ):
 
@@ -56,7 +53,7 @@ def collect_data(
         if detect_circles:
             circles = detect_pizzas(img)
         else:
-            circles = [guess_pizza_circle(img, file_name, centres_file)]
+            circles = [guess_pizza_circle(img)]
 
         if show_circles:
             display_circles(circles, img.copy())
@@ -78,7 +75,7 @@ def collect_data(
     # display_circles(circles, img.copy())
 
 
-def find_nearest(file_names, prints_file=PRINTS_FILE, centres_file=CENTRES_FILE):
+def find_nearest(file_names, prints_file=PRINTS_FILE):
     print("finding nearest...")
     saved_prints = load_pkl(prints_file)
     # print("prints", saved_prints)
@@ -98,13 +95,13 @@ def find_nearest(file_names, prints_file=PRINTS_FILE, centres_file=CENTRES_FILE)
         img = cv.imread(file_name)
         calc_fingerprint(
             img,
-            guess_pizza_circle(img, file_name, centres_file),
+            guess_pizza_circle(img),
             show_fingers='Candidate'
         )
         img = cv.imread(samest_file_name)
         calc_fingerprint(
             img,
-            guess_pizza_circle(img, samest_file_name, centres_file),
+            guess_pizza_circle(img),
             show_fingers='Closest'
         )
         cv.waitKey(0)
@@ -117,7 +114,6 @@ def main():
     parser.add_argument('--show_circles', action='store_true', default=False)
     parser.add_argument('--show_edges', action='store_true', default=False)
     parser.add_argument('--show_fingers', action='store_true', default=False)
-    parser.add_argument('--centres', default=CENTRES_FILE)
     parser.add_argument('--prints', default=PRINTS_FILE)
     args = parser.parse_args()
     file_names = args.files
@@ -127,14 +123,12 @@ def main():
         show_edges=args.show_edges,
         show_fingers=args.show_fingers,
         show_circles=args.show_circles,
-        centres_file=args.centres,
         prints_file=args.prints,
     )
 
     find_nearest(
         file_names,
         prints_file=args.prints,
-        centres_file=args.centres,
     )
 
 
