@@ -1,3 +1,4 @@
+import functools
 from collections import deque
 
 import cv2 as cv
@@ -47,6 +48,7 @@ def normalise(finger):
     return normalised
 
 
+@functools.lrucache(maxsize=1000)
 def similarity(candidate, template):
     # Matches the two fingerprints like how inspectors match bullets.
     # (rotate one array to find the closest match).
@@ -77,7 +79,7 @@ def calc_fingerprint(img, circle, show_edges=False, show_fingers=False):
 
     if show_edges:
         edges = cv.Canny(gray, 60, 120, apertureSize=3)
-        cv.imshow(f"lines {show_edges}", gray)
+        cv.imshow(f"lines {show_edges}", edges)
         # cv.waitKey(0)
 
     angles = []
@@ -87,15 +89,16 @@ def calc_fingerprint(img, circle, show_edges=False, show_fingers=False):
 
     angles = [(ang, n_val) for ((ang, val), n_val) in
               zip(angles, running_average([v for _, v in angles]))]
-    overlay = img.copy()
-    for ang, val in angles:
-        scaled = (val / 155) + 0.2
-        draw_radius(overlay, (x, y, rad * scaled), ang)
-
-    img = cv.addWeighted(overlay, 0.5, img, 0.5, 0)
 
     if show_fingers:
+        overlay = img.copy()
+        for ang, val in angles:
+            scaled = (val / 155) + 0.2
+            draw_radius(overlay, (x, y, rad * scaled), ang)
+
+        img = cv.addWeighted(overlay, 0.5, img, 0.5, 0)
+
         cv.imshow(f"fingers {show_fingers}", img)
-        # cv.waitKey(0)
 
     return [v for _, v in angles]
+
