@@ -1,4 +1,3 @@
-import functools
 from collections import deque
 
 import cv2 as cv
@@ -16,7 +15,7 @@ def rotate(pos, theta):
 
 
 def get_intensity(edges, angle, circle):
-    x, y, radius = tuple(circle)
+    x, y, radius = circle
     unit_vector = rotate((radius, 0), angle)
     # no need to oversample
     samples = min(SAMPLES_PER_LINE * 1.4, radius)
@@ -33,6 +32,8 @@ def get_intensity(edges, angle, circle):
 
 def draw_radius(img, circle, angle, color=(0, 255, 0)):
     x, y, radius = circle
+    if radius == 0.0:
+        return
     unit = rotate((radius, 0), angle)
     cv.line(
         img,
@@ -48,7 +49,6 @@ def normalise(finger):
     return normalised
 
 
-@functools.lru_cache(maxsize=1000)
 def similarity(candidate, template):
     # Matches the two fingerprints like how inspectors match bullets.
     # (rotate one array to find the closest match).
@@ -99,7 +99,8 @@ def calc_fingerprint(img, circle, show_edges=False, show_fingers=False):
         img = cv.addWeighted(overlay, 0.5, img, 0.5, 0)
 
         cv.imshow(f"fingers {show_fingers}", img)
-        cv.waitKey(0)
+        if show_fingers != True:
+            cv.waitKey(0)
 
     return [v for _, v in angles]
 

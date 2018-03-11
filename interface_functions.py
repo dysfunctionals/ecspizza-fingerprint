@@ -1,5 +1,6 @@
 import cv2 as cv
 
+from cli import guess_pizza_circle
 from fingerprinting import calc_fingerprint, similarity
 
 
@@ -15,12 +16,7 @@ def get_image_fingerprint(img_name):
     :return: fingerprint data in the form of a list of floats
     """
     img = cv.imread(img_name, 1)
-    estimated_pizza_radius = max(img.shape) / 3
-    circle = (
-        int(img.shape[1]/2),
-        int(img.shape[0]/2),
-        estimated_pizza_radius
-    )
+    circle = guess_pizza_circle(img)
     return calc_fingerprint(
         img,
         circle,
