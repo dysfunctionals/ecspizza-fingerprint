@@ -1,8 +1,6 @@
 import functools
 import pickle
 
-import cv2 as cv
-
 
 @functools.lru_cache()
 def load_pkl():
