@@ -23,7 +23,8 @@ def get_image_fingerprint(img_name):
     )
     return calc_fingerprint(
         img,
-        circle
+        circle,
+        show_fingers=True,
     )
 
 

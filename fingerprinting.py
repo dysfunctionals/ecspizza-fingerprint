@@ -48,7 +48,7 @@ def normalise(finger):
     return normalised
 
 
-@functools.lrucache(maxsize=1000)
+@functools.lru_cache(maxsize=1000)
 def similarity(candidate, template):
     # Matches the two fingerprints like how inspectors match bullets.
     # (rotate one array to find the closest match).
