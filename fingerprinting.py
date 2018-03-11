@@ -99,6 +99,7 @@ def calc_fingerprint(img, circle, show_edges=False, show_fingers=False):
         img = cv.addWeighted(overlay, 0.5, img, 0.5, 0)
 
         cv.imshow(f"fingers {show_fingers}", img)
+        cv.waitKey(0)
 
     return [v for _, v in angles]
 

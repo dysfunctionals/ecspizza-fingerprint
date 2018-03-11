@@ -17,8 +17,8 @@ def get_image_fingerprint(img_name):
     img = cv.imread(img_name, 1)
     estimated_pizza_radius = max(img.shape) / 3
     circle = (
-        int(img.shape[0]/2),
         int(img.shape[1]/2),
+        int(img.shape[0]/2),
         estimated_pizza_radius
     )
     return calc_fingerprint(
