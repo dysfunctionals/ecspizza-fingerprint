@@ -75,7 +75,7 @@ def collect_data(
     # display_circles(circles, img.copy())
 
 
-def find_nearest(file_names, prints_file=PRINTS_FILE):
+def find_nearest(file_names, prints_file=PRINTS_FILE, show_similars=False):
     print("finding nearest...")
     saved_prints = load_pkl(prints_file)
     # print("prints", saved_prints)
@@ -89,22 +89,22 @@ def find_nearest(file_names, prints_file=PRINTS_FILE):
             samenesses.append((sameness, compare_file_name))
         samenesses.sort()
 
-        print(file_name)
-        print(samenesses[:6])
-        samest, samest_file_name = samenesses[0]
-        img = cv.imread(file_name)
-        calc_fingerprint(
-            img,
-            guess_pizza_circle(img),
-            show_fingers='Candidate'
-        )
-        img = cv.imread(samest_file_name)
-        calc_fingerprint(
-            img,
-            guess_pizza_circle(img),
-            show_fingers='Closest'
-        )
-        cv.waitKey(0)
+        print([(0, file_name)] + [(s,f) for s,f in samenesses if s < 18000])
+        if show_similars:
+            samest, samest_file_name = samenesses[0]
+            img = cv.imread(file_name)
+            calc_fingerprint(
+                img,
+                guess_pizza_circle(img),
+                show_fingers='Candidate'
+            )
+            img = cv.imread(samest_file_name)
+            calc_fingerprint(
+                img,
+                guess_pizza_circle(img),
+                show_fingers='Closest'
+            )
+            cv.waitKey(0)
 
 
 def main():
@@ -114,6 +114,7 @@ def main():
     parser.add_argument('--show_circles', action='store_true', default=False)
     parser.add_argument('--show_edges', action='store_true', default=False)
     parser.add_argument('--show_fingers', action='store_true', default=False)
+    parser.add_argument('--show_similars', action='store_true', default=False)
     parser.add_argument('--prints', default=PRINTS_FILE)
     args = parser.parse_args()
     file_names = args.files
@@ -129,6 +130,7 @@ def main():
     find_nearest(
         file_names,
         prints_file=args.prints,
+        show_similars=args.show_similars,
     )
 
 
